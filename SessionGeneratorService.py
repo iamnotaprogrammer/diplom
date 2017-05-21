@@ -28,6 +28,7 @@ class SessionGeneratorService(object):
         self.ioloop = tornado.ioloop.IOLoop.instance()
         self.workers = workers
         self.method = method
+        self.client = motor.MotorClient("mongodb://localhost:27017")
     
     # @tornado.gen.engine
     # def to_mongo(self, data, callback=None):
@@ -65,17 +66,20 @@ class SessionGeneratorService(object):
             print()
             print("session tast : {} ".format(self.task))
             print()
-            result = next(self.workers.do([self.task], self.method))
-            print("Result SESSIONS {} ".format(result))
-            if not result:
+            # [[url, url2], ...]
+            users_sessions, _ = next(self.workers.do([self.task], self.method))
+
+
+            print("Result SESSIONS {} ".format(users_sessions))
+            if not users_sessions:
                 self.redis.set_value(self.task, 'session_generator_problem')
                 print("session_generator_problem problem {} ".format(self.task))
             self.redis.set_value(self.task, 'session_generating')
-            data = {"data": result}
-            client = motor.MotorClient("mongodb://localhost:27017")
-            future = client.db.sessions.insert(data)
-            result = yield future
-            self.my_callback(result)
+            data = {"data": users_sessions}
+
+            future = self.client.db.sessions.insert(data)
+            users_sessions = yield future
+            self.my_callback(users_sessions)
 
 
 

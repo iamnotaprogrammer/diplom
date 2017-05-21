@@ -1,5 +1,5 @@
 from Session import Session
-from usefull_modules import MoodleWorker, OurLogging
+from usefull_modules import MoodleWorker, Logging
 
 class DataParser(object):
     """class implements data prerocessing"""

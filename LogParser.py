@@ -1,8 +1,6 @@
 import multiprocessing
 import re
 from datetime import datetime
-from operator import itemgetter
-
 
 class LogParser(object):
     url_pattern =  r"(GET|POST) (.*) HTTP"
@@ -22,7 +20,7 @@ class LogParser(object):
         except:
             print(line)
             ip, date, url = "","",""
-        return  [date, ip, url]
+        return [date, ip, url]
 
     @staticmethod
     def parse_data(list_object):

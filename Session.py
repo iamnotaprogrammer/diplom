@@ -1,9 +1,8 @@
 import re
 from datetime import datetime
 
-
-
 line_pattern = re.compile(r'(\d{1,3}\.\d{1,3}.\d{1,3}.\d{1,3}) - - \[(.*)\] \"(\w{3,6}.* \w{0,4}/\d\.\d)\"')
+
 
 class Session(object):
     """class implements user session"""
@@ -20,34 +19,32 @@ class Session(object):
 
 
 class SessionGenerator(object):
-
     @staticmethod
     def generate(file_path):
         """extract sessions from web log """
         print("generator method()")
         result = []
-        temp_dict = {}
-        session_time = 3000
+        userIp_session = {}
+        session_time = 300
         with open(file_path) as file_:
             for line in file_:
-                r = re.search(line_pattern, line)
-                if r:
-                    ip, time_, url = r.groups()[0], datetime.strptime(r.groups()[1].split(" ")[0], '%d/%b/%Y:%H:%M:%S'), r.groups()[2].split(" ")[1]
-                    if temp_dict.get(ip, None) == None:
-                        temp_dict[ip] = Session(time_, url)
-                    elif (time_ - temp_dict[ip].start).total_seconds() > session_time:
-                        result.append(temp_dict[ip].actions)
-                        temp_dict[ip] = Session(time_, url)
-                    else:
-                        temp_dict[ip].actions.append(url)
-                else:
+                ip_time_url = re.search(line_pattern, line)
+                if ip_time_url is None:
                     continue
-                    # print("pattern : {}  line :{} ".format(re.search(line_pattern, line), line))
-                print((time_ - temp_dict.get(ip, Session(datetime.now(), r"http://localhost:80/")).start).total_seconds())
-            print("RESULT GENERATOR SESSIONS {}".format(result))
-            return result
+                ip, time_, url = ip_time_url.groups()[0], datetime.strptime(ip_time_url.groups()[1].split(" ")[0], '%d/%b/%Y:%H:%M:%S'), \
+                                 ip_time_url.groups()[2].split(" ")[1]
+                if userIp_session.get(ip, None) == None:
+                    userIp_session[ip] = Session(time_, url)
+                elif (time_ - userIp_session[ip].start).total_seconds() > session_time:
+                    result.append(userIp_session[ip].actions)
+                    userIp_session[ip] = Session(time_, url)
+                else:
+                    userIp_session[ip].actions.append(url)
 
-
+                # print("pattern : {}  line :{} ".format(re.search(line_pattern, line), line))
+                # print((time_ - userIp_session.get(ip, Session(datetime.now(),
+                #                                               r"http://localhost:80/")).start).total_seconds())
+            return result, list(userIp_session.keys())
 
 
 if __name__ == "__main__":

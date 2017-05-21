@@ -45,23 +45,26 @@ def restart():
 
 def stop():
     for file in os.listdir("./pids/"):
-        with open("./pids/" + file) as fobj:
-            pid = int(fobj.read())
-            print(pid)
-            os.kill(pid, signal.SIGTERM)
-        os.remove(file)
+        try:
+            with open("./pids/" + file) as fobj:
+                pid = int(fobj.read())
+                print(pid)
+                os.kill(pid, signal.SIGTERM)
+            os.remove(file)
+        except:
+            continue
 
 def reload():
     pass
 
-COMMANDS_DICT = {'start': start, 'stop': stop,'restart': restart, 'reload': reload}
+COMMANDS_DICT = {'start': start, 'stop': stop, 'restart': restart, 'reload': reload}
 
 if __name__ == '__main__':
     if getpass.getuser() != "root":
         print('Please, use sudo')
         sys.exit(1)
     command = sys.argv[1]
-
+    print(command)
     if command in VALID_COMMANDS:
         COMMANDS_DICT[command]()
     else:

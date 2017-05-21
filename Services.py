@@ -61,10 +61,11 @@ class ServiceVisitor(object):
     def loop(self, name):
         getattr(self, 'loop_' + name)()
 
-
     def loop_Apriori(self):
+
         with open("./pids/apriory.pid", "w") as fobj:
             fobj.write(str(os.getpid()))
+
         workers = Master()
         redis_connector = RedisWrapper()
         worker = AprioriService(redis_connector, workers, None)
